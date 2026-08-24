@@ -51,7 +51,7 @@ recruitment work.
 
 ## Phase 5 — Publishing
 - [x] Published to Tableau Public: https://public.tableau.com/app/profile/bernardo.dias/viz/MLSPlayerBenchmarking/Dashboard1
-- [ ] Push the repo to GitHub with this README.
+- [x] Pushed to GitHub: https://github.com/dododdias/mls-player-benchmarking
 - [ ] Link the Tableau Public dashboard + repo on LinkedIn and on the resume.
 
 ## Data source
