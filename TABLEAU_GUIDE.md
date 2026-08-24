@@ -1,4 +1,4 @@
-# Phase 3 — Tableau Public dashboard skeleton
+# Tableau Public dashboard skeleton (Phases 3 & 4)
 
 Prerequisite: run `01_fetch_data.py` → `02_benchmark.py` → `03_prep_tableau.py`.
 That generates `data/players_benchmarked_long.csv`, which is the data source
@@ -111,6 +111,54 @@ interview demo.
 Server menu → **Save to Tableau Public As...** → title something like
 *"MLS Player Benchmarking — Sporting KC"*. The public link that gets
 generated is what goes in the README, LinkedIn, and resume (Phase 5).
+
+---
+
+## 8. Phase 4 — "Undervalued Players" leaderboard (second dashboard tab)
+
+Reuses the same `players_benchmarked_long.csv` data source already connected
+— no new data source needed. Adds two calculated fields and one worksheet.
+
+### Calculated fields
+
+```
+// Composite Percentile   (LOD — average of a player's 4 metric percentiles)
+{ FIXED [Player Name] : AVG([Percentile]) }
+
+// High Profile Team   (manual heuristic, NOT real salary/cap-hit data)
+[Team Name] = "Inter Miami CF" OR
+[Team Name] = "LA Galaxy" OR
+[Team Name] = "LAFC" OR
+[Team Name] = "Atlanta United FC" OR
+[Team Name] = "Seattle Sounders FC" OR
+[Team Name] = "Toronto FC"
+```
+
+### Worksheet — "Undervalued Players"
+
+1. New worksheet. Filter: drag `Composite Percentile` onto **Filters** →
+   choose aggregation **Average** (same long-format gotcha as everywhere
+   else) → **At least** → `85` (top ~5% of the league; adjust to taste).
+2. Rows: `Player Name`. Columns: `Composite Percentile` — again set its
+   aggregation to **Average**, not the default Sum (4x bug otherwise).
+3. Sort `Player Name` by field → `Composite Percentile`, Average, Descending.
+4. Color: `High Profile Team`. Rename the legend items (right-click legend →
+   Edit Alias): `True` → `Big-market club`, `False` → `Under the radar`.
+5. Tooltip: `Team Name`, `General Position`, `Minutes Played` (Average
+   aggregation again).
+6. Rename the axis title (double-click it) to something like
+   `Composite Percentile (avg of 4 metrics)`.
+
+### Dashboard
+
+New Dashboard tab ("Undervalued Players") → drag the worksheet in, enable
+the title, and add a **Text** object (Objects panel) with a caveat, e.g.:
+*"High-profile team" is a manual heuristic based on media/spending profile —
+not real salary or cap-hit data (unavailable via this API). Treat this as a
+starting point for scouting, not a definitive value ranking.*
+
+Then **Server → Save to Tableau Public As...** with the same file name to
+overwrite the published viz — both dashboard tabs go live under the same URL.
 
 ---
 

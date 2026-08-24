@@ -43,11 +43,21 @@ Main visual: percentile bars per player, with team/position filters and a
 comparison against the position average or another player. Radar chart is
 documented there as a stretch goal.
 
-## Phase 4 (optional) — Recruitment layer
-Using the same `players_benchmarked.csv`, filter players with high percentiles
-in offensive/defensive metrics but outside the league's "big" teams — that
-becomes an "undervalued players" list, which ties in with ScoutLink/InjuryBot
-recruitment work.
+## Phase 4 — Recruitment layer
+```bash
+python 04_undervalued.py
+```
+Generates `data/undervalued_candidates.csv`: every player ranked by
+`composite_percentile` (the average of their 4 metric percentiles), flagged
+with `high_profile_team` — a **manual heuristic** (not real salary/cap-hit
+data, which isn't available via this free API) marking clubs with a
+historically larger media/spending profile. High composite percentile +
+`high_profile_team = False` = worth a scouting look, not a guaranteed
+bargain. Ties in with ScoutLink/InjuryBot recruitment work.
+
+Same idea reproduced as a Tableau leaderboard on a second dashboard tab
+("Undervalued Players") in the published viz — see `TABLEAU_GUIDE.md` if
+rebuilding it from scratch.
 
 ## Phase 5 — Publishing
 - [x] Published to Tableau Public: https://public.tableau.com/app/profile/bernardo.dias/viz/MLSPlayerBenchmarking/Dashboard1
