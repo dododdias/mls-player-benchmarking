@@ -1,6 +1,7 @@
 # MLS Player Benchmarking — portfolio project (Sporting KC)
 
-**Live dashboard:** https://public.tableau.com/app/profile/bernardo.dias/viz/MLSPlayerBenchmarking/Dashboard1
+**Live dashboard:** https://public.tableau.com/app/profile/bernardo.dias/viz/MLSPlayerBenchmarking/Story1
+(a guided Story with 5 pages: Player Benchmark, Undervalued Players, Player Comps, Injury-Risk Monitor, Team Value)
 
 ## Setup
 ```bash
@@ -108,10 +109,20 @@ current workload status for any player. Defaults to a demo player if no name
 is given.
 
 ## Phase 11 — Publishing
-- [x] Published to Tableau Public: https://public.tableau.com/app/profile/bernardo.dias/viz/MLSPlayerBenchmarking/Dashboard1
+- [x] Published to Tableau Public: https://public.tableau.com/app/profile/bernardo.dias/viz/MLSPlayerBenchmarking/Story1
 - [x] Pushed to GitHub: https://github.com/dododdias/mls-player-benchmarking
-- [ ] Tableau dashboards for Phases 7-9 (comps, workload, team value) — not built yet.
+- [x] Tableau dashboards for Phases 7-9 (comps, workload, team value) — built, bundled into the
+      Story above.
 - [ ] Link the Tableau Public dashboard + repo on LinkedIn and on the resume.
+
+**Note on the published link:** as of Tableau Public 2026.2.1, `Save to Tableau
+Public As...` only publishes the currently active sheet — it does not bundle
+the whole workbook with tab navigation like older versions did. The fix: build
+a **Story** (New Story tab) with one story point per dashboard, and publish
+the Story itself. See `TABLEAU_GUIDE.md` for the full walkthrough, including
+a text-overlap bug that shows up when dashboards get compressed inside a
+Story frame (fixed by setting the Story's own Size to a fixed size instead of
+Automatic).
 
 ## Data source
 American Soccer Analysis public API: https://app.americansocceranalysis.com/api/v1/

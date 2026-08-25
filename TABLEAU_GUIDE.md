@@ -112,6 +112,14 @@ Server menu → **Save to Tableau Public As...** → title something like
 *"MLS Player Benchmarking — Sporting KC"*. The public link that gets
 generated is what goes in the README, LinkedIn, and resume (Phase 5).
 
+> **Gotcha (Tableau Public 2026.2.1):** the "Save to Tableau Public As..."
+> dialog in this version is a simplified title-only prompt — it only
+> publishes the **currently active sheet**, not the whole workbook with tab
+> navigation like older Tableau versions did. If your workbook has multiple
+> dashboards, this dialog will silently publish just one of them. See
+> **section 11 (Story)** below for the actual fix once you've built more than
+> one dashboard.
+
 ---
 
 ## 8. Phase 4 — "Undervalued Players" leaderboard (second dashboard tab)
@@ -159,6 +167,99 @@ starting point for scouting, not a definitive value ranking.*
 
 Then **Server → Save to Tableau Public As...** with the same file name to
 overwrite the published viz — both dashboard tabs go live under the same URL.
+
+---
+
+## 9. Phase 7 — "Player Comps" leaderboard
+
+New data source: **Data → New Data Source... → Text File → `player_comps.csv`**
+(different grain than the other CSVs — one row per player x comp rank — so it
+gets its own connection, not a join).
+
+Calculated field (in this new data source):
+```
+// Is Selected Player
+[Player Name] = [pSelectPlayer]
+```
+(Workbook-level parameters like `pSelectPlayer` are visible from every data
+source in the workbook, so this reuses the same parameter Dashboard 1 uses.)
+
+Worksheet:
+1. Filter by `Is Selected Player` = True.
+2. Rows: `Comp Rank` — drag it on, then explicitly set it to **Discrete**
+   (blue pill), not the default Continuous (green). Continuous here plots
+   rank as a second numeric axis and produces a scatter/bar hybrid instead of
+   one row per rank.
+3. Also drag `Comp Player Name` and `Comp Team Name` onto Rows, after
+   `Comp Rank` — as row headers, not as floating bar-end labels (labels
+   positioned at the end of a bar collide when two bars are close in length).
+4. Columns: `Similarity Distance`. Marks: Bar.
+5. Color: `Cheaper Alternative`.
+6. Tooltip: `Comp Player Name`, `Comp Team Name`, `Comp Guaranteed Compensation`.
+7. Dashboard: drag the worksheet in, **Show Parameter** on `pSelectPlayer` so
+   this tab works standalone without switching back to Dashboard 1.
+
+## 10. Phase 8 — "Injury-Risk Monitor" (ACWR over time)
+
+New data source: `player_workload.csv`.
+
+1. Same `Is Selected Player` calculated field / filter pattern as above.
+2. Columns: `Date` — when dragged on, Tableau defaults to `YEAR(Date)`
+   (discrete, one point per year). Click the pill's dropdown → **More** →
+   **Exact Date**, and confirm it's **Continuous** (green), not Discrete —
+   otherwise the whole season collapses into a single aggregated point.
+3. Rows: `ACWR`. Marks: Line. Color: `Risk Flag`.
+4. Analytics pane → drag two **Constant Line** references onto the chart:
+   `1.5` and `0.8` (the sports-science interpretation bands from
+   `07_workload.py`).
+5. Tooltip: `Team Name`, `General Position`, `Minutes Played`,
+   `Acute Load 7d`, `Chronic Load 28d Avg Weekly`, `Risk Flag`.
+6. Dashboard: Size = Automatic (not the default small responsive preset —
+   same fix as Dashboard 1), Show Parameter on `pSelectPlayer`.
+
+## 11. Phase 9 — "Team Value" leaderboard
+
+New data source: `team_value.csv` (team-level, no `pSelectPlayer` needed).
+
+1. Rows: `Team Name`. Columns: `Points Per Million`. Marks: Bar.
+2. Sort `Team Name` by field → `Value Rank`, Minimum, Ascending.
+3. Color: `Is Skc` → rename the legend items (right-click legend → Edit
+   Alias) to `Sporting KC` / `Rest of league`.
+4. Dashboard: drag the worksheet in, add a **Text** caveat below it
+   explaining the metric is real MLSPA salary data, not a proxy.
+
+> **Gotcha:** a Text object dropped onto a Tiled dashboard claims its whole
+> grid zone, which can look like a huge empty box around a short caption.
+> Fix by dragging the zone's border to shrink it — **not** by switching the
+> object to Floating. Floating positions the text at fixed pixel coordinates,
+> which do not scale consistently when Tableau Public renders the dashboard
+> in a browser at a different aspect ratio than Desktop — the text ends up
+> overlapping the chart on the published page even though it looks fine
+> locally. This bit us once; Tiled + border-drag is the safe way.
+
+## 12. Bundling multiple dashboards into one link — the Story fix
+
+As noted in section 7, Tableau Public 2026.2.1's "Save to Tableau Public
+As..." only publishes the current sheet. To ship all five dashboards
+(Player Benchmark, Undervalued Players, Player Comps, Injury-Risk Monitor,
+Team Value) under one shareable URL:
+
+1. Bottom toolbar → **New Story** (third icon, after New Worksheet / New
+   Dashboard).
+2. Left panel → **Size** → set a **fixed size** (e.g. Generic Desktop,
+   1600x1200) instead of Automatic. A Story embeds each dashboard inside its
+   own frame; Automatic sizing left too little room in testing and caused
+   caption text near the bottom of a few dashboards to get clipped by the
+   chart's own axis labels. A fixed, generous size avoided it.
+3. For each dashboard: **New story point → Blank**, drag the dashboard onto
+   the point, and type a short caption in the title field at the top (e.g.
+   "Player Benchmark", "Team Value").
+4. Rename the Story tab to the workbook's title (e.g. `MLS Player
+   Benchmarking`).
+5. **Server → Save to Tableau Public As...** with the **Story tab active**.
+   The published page now shows a navigable strip with all five points —
+   this is what goes in the README / LinkedIn / resume, not a link to any
+   single dashboard.
 
 ---
 
