@@ -4,7 +4,7 @@
 
 ## Setup
 ```bash
-pip install requests pandas
+pip install requests pandas numpy matplotlib
 ```
 
 ## Phase 1 — Collect data
@@ -59,9 +59,58 @@ Same idea reproduced as a Tableau leaderboard on a second dashboard tab
 ("Undervalued Players") in the published viz — see `TABLEAU_GUIDE.md` if
 rebuilding it from scratch.
 
-## Phase 5 — Publishing
+## Phase 6 — Extended data (salaries, games, team stats)
+```bash
+python 05_fetch_extended.py
+```
+Generates `data/players_salaries.csv` (real MLSPA salary release),
+`data/teams_salaries.csv`, `data/teams_xgoals.csv`, `data/games.csv`, and
+`data/players_xgoals_by_game.csv` (per-game player data, whole league in one
+API call via `split_by_games=true`). Powers Phases 7-10.
+
+## Phase 7 — Player comps
+```bash
+python 06_comps.py
+```
+Generates `data/player_comps.csv`: for every player, the 5 most statistically
+similar players at the same position (Euclidean distance on the percentile
+profile), flagged with `cheaper_alternative` using real salary data. **Known
+limitation:** GK/CB comps degenerate to distance 0 for some players, since
+all 4 metrics are attacking-only — see the script's docstring.
+
+## Phase 8 — Workload / injury-risk proxy
+```bash
+python 07_workload.py
+```
+Generates `data/player_workload.csv`: ACWR (acute:chronic workload ratio,
+Gabbett et al.) per player per game — a real sports-science proxy for injury
+risk, not a diagnosis. **Caveat:** at full-season/league scale ~40% of rows
+read "high" because return-from-a-gap events (injury, rotation, international
+duty) are common across 577 players over 6+ months; meant for week-to-week
+single-team monitoring, not retroactive season-wide counting.
+
+## Phase 9 — Team spend-vs-performance
+```bash
+python 08_team_dashboard.py
+```
+Generates `data/team_value.csv`: every team's points, xpoints, and payroll,
+ranked by points-per-$M. Sporting KC currently ranks 21/30 on value-for-money
+and is underperforming its own xpoints — a real, unflattering-but-honest
+finding worth being able to explain in an interview.
+
+## Phase 10 — Auto-generated scouting reports (PDF)
+```bash
+python 09_scouting_report.py "Dejan Joveljic"
+```
+Generates a one-page PDF (`data/scouting_reports/<player>.pdf`) combining the
+percentile profile, top comps (with cheaper-alternative callouts), and
+current workload status for any player. Defaults to a demo player if no name
+is given.
+
+## Phase 11 — Publishing
 - [x] Published to Tableau Public: https://public.tableau.com/app/profile/bernardo.dias/viz/MLSPlayerBenchmarking/Dashboard1
 - [x] Pushed to GitHub: https://github.com/dododdias/mls-player-benchmarking
+- [ ] Tableau dashboards for Phases 7-9 (comps, workload, team value) — not built yet.
 - [ ] Link the Tableau Public dashboard + repo on LinkedIn and on the resume.
 
 ## Data source
